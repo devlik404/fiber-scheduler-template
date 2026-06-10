@@ -1,6 +1,6 @@
 # Go Fiber Scheduler Template
 
-Template scheduler Go dengan Fiber dan clean architecture ringan. Pengguna cukup fokus mengubah logic utama di `internal/task/jobs`, lalu mendaftarkan job di `internal/task/registry.go`.
+Template scheduler dan API Go dengan Fiber dan clean architecture ringan. Pengguna cukup fokus mengubah logic utama di file job atau handler yang digenerate.
 
 ## Struktur
 
@@ -85,6 +85,8 @@ Koneksi DB dikirim ke setiap job lewat constructor di `internal/task/registry.go
 
 ## Mengubah Logic Utama
 
+### Scheduler Job
+
 Untuk membuat job baru, gunakan generator:
 
 ```bash
@@ -114,6 +116,29 @@ CASE_TASK_SCHEDULE=*/5 * * * *
 ```
 
 Scheduler memakai format cron standar 5 field: `minute hour day-of-month month day-of-week`.
+
+### HTTP API
+
+Untuk membuat API baru, gunakan generator:
+
+```bash
+go run ./cmd/generate-api --name user-profile --method GET --path /api/user-profile
+```
+
+Atau lewat Makefile:
+
+```bash
+make generate-api NAME=user-profile METHOD=GET PATH=/api/user-profile
+```
+
+Generator otomatis membuat:
+
+- file handler di `internal/http/handler`
+- route di `internal/http/routes.go`
+- logger API dengan atribut `component=api`
+- akses dependency DB lewat `h.deps.DB.Primary` dan `h.deps.DB.Secondary`
+
+Jika ingin membuat banyak API, jalankan generator berulang dengan nama berbeda. Setelah itu cukup isi logic utama di method `Handle` pada masing-masing file handler.
 
 ## Timezone
 
