@@ -9,6 +9,7 @@ import (
 
 	"template_sch/internal/config"
 	httpapp "template_sch/internal/http"
+	httpdependency "template_sch/internal/http/dependency"
 	"template_sch/internal/platform/database"
 	applogger "template_sch/internal/platform/logger"
 	"template_sch/internal/platform/server"
@@ -28,9 +29,6 @@ func main() {
 	logger := applogger.New(cfg)
 	logger.Info("application booting", "addr", cfg.HTTPAddress(), "scheduler_enabled", cfg.Scheduler.Enabled)
 
-	app := server.NewFiber(cfg)
-	httpapp.RegisterRoutes(app, cfg)
-
 	db, err := database.OpenConnections(context.Background(), cfg.Database, logger)
 	if err != nil {
 		logger.Error("database connection failed", "error", err)
@@ -43,6 +41,9 @@ func main() {
 			}
 		}()
 	}
+
+	app := server.NewFiber(cfg)
+	httpapp.RegisterRoutes(app, cfg, httpdependency.Dependencies{DB: db}, logger)
 
 	taskRegistry := task.NewRegistry(cfg.Task, task.Dependencies{DB: db}, logger)
 	taskScheduler, err := scheduler.New(cfg.Scheduler, taskRegistry.Jobs(), logger)

@@ -1,4 +1,4 @@
-.PHONY: run test build tidy generate-job
+.PHONY: run test build tidy generate-job generate-api
 
 run:
 	go run ./cmd/api
@@ -14,3 +14,6 @@ tidy:
 
 generate-job:
 	go run ./cmd/generate-job --name "$(NAME)" --schedule "$(SCHEDULE)"
+
+generate-api:
+	go run ./cmd/generate-api --name "$(NAME)" --method "$(METHOD)" --path "$(PATH)"
